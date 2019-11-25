@@ -1,0 +1,8 @@
+from scryfall_formatter import *
+
+# Scan every card in a set
+expansion = input("Type the three-character set code for the set you want to scan: ")
+cardset = scrython.cards.Search(q="set:" + expansion)
+cardnames = [cardset.data()[x]["name"] for x in range(len(cardset.data()))]
+for cardname in cardnames:
+    process_card(cardname)
