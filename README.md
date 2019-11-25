@@ -1,6 +1,8 @@
 # mpc-scryfall
 Simple tool to retrieve Scryfall scans of MTG cards, perform some light processing on them, and prepare them for printing with MPC. This tool will throw Scryfall scans through waifu2x (courtesy of deepAI), lightly filter the image, then remove the holographic stamp.
 
+![img1](https://i.imgur.com/ddmgMuf.png)
+
 # Requirements
 * An internet connection while the tool is running
 * A deepAI.org account (free) 
