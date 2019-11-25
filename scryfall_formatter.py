@@ -43,9 +43,8 @@ def process_card(cardname):
     maxval = np.max(im_recon)
     im_recon_sc = (255 * ((im_recon - minval) / (maxval - minval))).astype(np.uint8)
 
-    # TODO: Remove copyright line for pre-m15 planeswalkers
-    # TODO: Remove copyright line for pre-m15, post-8ed cards
-    # TODO: Remove copyright line for pre-8ed cards (?)
+    # TODO: pre-m15, post-8ed cards
+    # TODO: pre-8ed cards (?)
 
     # Borderify image
     pad = 75  # Pad image by 75px, or 1/8th of inch, on each edge (at 600 dpi)
@@ -145,13 +144,6 @@ def process_card(cardname):
 
 if __name__ == "__main__":
     # Loop through each card in cards.txt and scan em all
-    # with open('cards.txt', 'r') as fp:
-    #     for cardname in fp:
-    #         process_card(cardname)
-
-    # Scan every card in a set
-    expansion = "eld"
-    cardset = scrython.cards.Search(q="set:" + expansion)
-    cardnames = [cardset.data()[x]["name"] for x in range(len(cardset.data()))]
-    for cardname in cardnames:
-        process_card(cardname)
+    with open('cards.txt', 'r') as fp:
+        for cardname in fp:
+            process_card(cardname)
