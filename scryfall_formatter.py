@@ -7,6 +7,7 @@ import numpy as np
 from numpy.fft import fft2, ifft2, fftshift, ifftshift
 from skimage.transform import resize
 
+
 def process_card(cardname):
     time.sleep(0.05)
     card = scrython.cards.Named(fuzzy=cardname)
@@ -52,7 +53,7 @@ def process_card(cardname):
     im_padded = np.zeros([im.shape[0] + 2 * pad, im.shape[1] + 2 * pad, 3])
 
     # Get border colour from left side of image
-    bordercolour = np.median(im[0:bordertol, 100:im.shape[1] - 100, 1])
+    bordercolour = np.median(im[200:(im.shape[0] - 200), 0:bordertol], axis=(0, 1))
 
     # Pad image
     for i in range(0, 3):
@@ -61,19 +62,19 @@ def process_card(cardname):
     # Overfill onto existing border to remove white corners
     # Left
     im_padded[0:im_padded.shape[0],
-    0:pad + bordertol, :] = bordercolour
+              0:pad + bordertol, :] = bordercolour
 
     # Right
     im_padded[0:im_padded.shape[0],
-    im_padded.shape[1] - (pad + bordertol):im_padded.shape[1], :] = bordercolour
+              im_padded.shape[1] - (pad + bordertol):im_padded.shape[1], :] = bordercolour
 
     # Top
     im_padded[0:pad + bordertol,
-    0:im_padded.shape[1], :] = bordercolour
+              0:im_padded.shape[1], :] = bordercolour
 
     # Bottom
     im_padded[im_padded.shape[0] - (pad + bordertol):im_padded.shape[0],
-    0:im_padded.shape[1], :] = bordercolour
+              0:im_padded.shape[1], :] = bordercolour
 
     # Remove copyright line
     if card.frame() == "2015":
