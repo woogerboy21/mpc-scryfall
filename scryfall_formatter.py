@@ -48,7 +48,7 @@ def process_card(cardname):
     # TODO: pre-8ed cards (?)
 
     # Borderify image
-    pad = 75  # Pad image by 75px, or 1/8th of inch, on each edge (at 600 dpi)
+    pad = 57  # Pad image by 1/8th of inch on each edge
     bordertol = 16  # Overfill onto existing border by 16px to remove white corners
     im_padded = np.zeros([im.shape[0] + 2 * pad, im.shape[1] + 2 * pad, 3])
 
@@ -79,17 +79,17 @@ def process_card(cardname):
     # Remove copyright line
     if card.frame() == "2015":
         # Modern frame
-        leftPix = 750
-        rightPix = 1160
-        topPix = 1570
-        bottomPix = 1610
+        leftPix = 735
+        rightPix = 1140
+        topPix = 1550
+        bottomPix = 1585
 
         # creatures have a shifted legal line
         try:
             power = card.power()
             toughness = card.toughness()
-            topPix = 1600
-            bottomPix = 1640
+            topPix = 1580
+            bottomPix = 1605
             # Creature card
         except KeyError:
             pass
@@ -97,8 +97,8 @@ def process_card(cardname):
         # planeswalkers have a shifted legal line too
         try:
             loyalty = card.loyalty()
-            topPix = 1600
-            bottomPix = 1640
+            topPix = 1580
+            bottomPix = 1605
         except KeyError:
             pass
 
@@ -108,10 +108,10 @@ def process_card(cardname):
         # 8ED frame
         try:
             loyalty = card.loyalty()
-            leftPix = 340
-            rightPix = 955
-            topPix = 1585
-            bottomPix = 1620
+            leftPix = 400
+            rightPix = 860
+            topPix = 1570
+            bottomPix = 1600
             im_padded[topPix:bottomPix, leftPix:rightPix, :] = bordercolour
         except KeyError:
             # TODO: Content aware fill?
@@ -121,10 +121,10 @@ def process_card(cardname):
     if card.frame() == "2015" and (card.rarity() == "rare" or card.rarity() == "mythic"):
         # Need to remove holostamp
         # Define bounds of ellipse to fill with border colour
-        leftE = 595
-        rightE = 705
-        topE = 1535
-        bottomE = 1595
+        leftE = 575
+        rightE = 690
+        topE = 1520
+        bottomE = 1575
 
         cx = (leftE + rightE) / 2
         cy = (topE + bottomE) / 2
@@ -140,7 +140,8 @@ def process_card(cardname):
                     im_padded[y, x, :] = bordercolour
 
     # Write image to disk
-    imageio.imwrite("formatted/" + cardname + ".png", im_padded.astype(np.uint8))
+    imageio.imwrite("formatted/" + cardname + "|" +
+                    card.set_code().upper() + ".png", im_padded.astype(np.uint8))
 
 
 if __name__ == "__main__":
