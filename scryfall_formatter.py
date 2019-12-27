@@ -10,14 +10,22 @@ from skimage.transform import resize
 
 def process_card(cardname):
     time.sleep(0.05)
-    card = scrython.cards.Named(fuzzy=cardname)
-    cardname = card.name().replace("//", "|")
-    print("Processing: " + cardname)
 
+    # If the card specifies which set to retrieve the scan from, do that
+    try:
+        pipe_idx = cardname.index("|")
+        query = cardname[0:pipe_idx] + " set=" + cardname[pipe_idx+1:]
+        card = scrython.cards.Search(q=query).data()[0]
+        print("Processing: " + cardname + ", set: " + cardname[pipe_idx+1:])
+    except (ValueError, scrython.foundation.ScryfallError):
+        card = scrython.cards.Named(fuzzy=cardname).scryfallJson
+        print("Processing: " + cardname)
+
+    cardname = card["name"].replace("//", "&")  # should work on macOS & windows now
     r = requests.post(
         "https://api.deepai.org/api/waifu2x",
         data={
-            'image': card.image_uris()['large'],
+            'image': card["image_uris"]['large'],
         },
         headers={'api-key': config.TOKEN}
     )
@@ -53,7 +61,7 @@ def process_card(cardname):
     im_padded = np.zeros([im.shape[0] + 2 * pad, im.shape[1] + 2 * pad, 3])
 
     # Get border colour from left side of image
-    bordercolour = np.median(im[200:(im.shape[0] - 200), 0:bordertol], axis=(0, 1))
+    bordercolour = np.median(im_recon_sc[200:(im_recon_sc.shape[0] - 200), 0:bordertol], axis=(0, 1))
 
     # Pad image
     for i in range(0, 3):
@@ -77,7 +85,8 @@ def process_card(cardname):
               0:im_padded.shape[1], :] = bordercolour
 
     # Remove copyright line
-    if card.frame() == "2015":
+    # print(card["power"])
+    if card["frame"] == "2015":
         # Modern frame
         leftPix = 735
         rightPix = 1140
@@ -86,17 +95,17 @@ def process_card(cardname):
 
         # creatures have a shifted legal line
         try:
-            power = card.power()
-            toughness = card.toughness()
+            power = card["power"]
+            toughness = card["toughness"]
             topPix = 1580
-            bottomPix = 1605
+            bottomPix = 1615
             # Creature card
         except KeyError:
             pass
 
         # planeswalkers have a shifted legal line too
         try:
-            loyalty = card.loyalty()
+            loyalty = card["loyalty"]
             topPix = 1580
             bottomPix = 1605
         except KeyError:
@@ -104,12 +113,12 @@ def process_card(cardname):
 
         im_padded[topPix:bottomPix, leftPix:rightPix, :] = bordercolour
 
-    elif card.frame() == "2003":
+    elif card["frame"] == "2003":
         # 8ED frame
         try:
-            loyalty = card.loyalty()
-            leftPix = 400
-            rightPix = 860
+            loyalty = card["loyalty"]
+            leftPix = 300
+            rightPix = 960
             topPix = 1570
             bottomPix = 1600
             im_padded[topPix:bottomPix, leftPix:rightPix, :] = bordercolour
@@ -118,7 +127,7 @@ def process_card(cardname):
             pass
 
     # Remove holostamp
-    if card.frame() == "2015" and (card.rarity() == "rare" or card.rarity() == "mythic"):
+    if card["frame"] == "2015" and (card["rarity"] == "rare" or card["rarity"] == "mythic"):
         # Need to remove holostamp
         # Define bounds of ellipse to fill with border colour
         leftE = 575
@@ -140,8 +149,7 @@ def process_card(cardname):
                     im_padded[y, x, :] = bordercolour
 
     # Write image to disk
-    imageio.imwrite("formatted/" + cardname + "|" +
-                    card.set_code().upper() + ".png", im_padded.astype(np.uint8))
+    imageio.imwrite("formatted/" + cardname + ".png", im_padded.astype(np.uint8))
 
 
 if __name__ == "__main__":
