@@ -22,6 +22,7 @@ Simple tool to retrieve Scryfall scans of MTG cards, perform some light processi
 * To scan each card in `cards.txt`, run `scryfall_formatter.py`
 * To do entire sets at a time, run `scryfall_formatter_set.py` and type in the three-character set code for the set you want when prompted
 * If you're on a Mac and get an error talking about certificate verification failing, go to Applications -> Python 3.X and run `Install Certificates.command`, and that should fix it!
+* If you get an error that looks something like `KeyError: 'output_url'`, double check that you've received and confirmed your deepAI account by email
 
 # Limitations / Other Notes
 This can work on any magic card scan, but it'll only attempt to do post-filtering cleanup on planeswalkers and any cards printed in the M15 onwards frame. I also haven't tried printing any cards yet with this, but I placed some of the resulting images into MPC and the crops looked fine.
