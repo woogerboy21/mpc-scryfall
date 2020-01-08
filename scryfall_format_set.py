@@ -11,7 +11,7 @@ while more:
     time.sleep(0.1)
     cardset = scrython.cards.Search(q="set:" + expansion, page=page)
     more = cardset.has_more()
-    cardnames = cardnames + [cardset.data()[x]["name"] for x in range(len(cardset.data()))]
+    cardnames = cardnames + [cardset.data()[x]["name"] + "|" + expansion for x in range(len(cardset.data()))]
     page += 1
 
 for cardname in cardnames:
