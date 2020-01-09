@@ -8,20 +8,29 @@ from numpy.fft import fft2, ifft2, fftshift, ifftshift
 from skimage.transform import resize
 
 
-def process_card(cardname):
+def process_card(cardname, expansion=None):
     time.sleep(0.05)
 
-    # If the card specifies which set to retrieve the scan from, do that
+    # try/except in case the search doesn't return anything
     try:
-        pipe_idx = cardname.index("|")
-        query = cardname[0:pipe_idx] + " set=" + cardname[pipe_idx+1:]
+        # If the card specifies which set to retrieve the scan from, do that
+        if expansion:
+            # Set specified from set formatter
+            query = "!\"" + cardname + "\" set=" + expansion
+            print("Processing: " + cardname + ", set: " + expansion)
+        else:
+            query = "!\"" + cardname + "\""
+            print("Processing: " + cardname)
         card = scrython.cards.Search(q=query).data()[0]
-        print("Processing: " + cardname + ", set: " + cardname[pipe_idx+1:])
-    except (ValueError, scrython.foundation.ScryfallError):
-        card = scrython.cards.Named(fuzzy=cardname).scryfallJson
-        print("Processing: " + cardname)
+
+    except scrython.foundation.ScryfallError:
+        print("Couldn't find card: " + cardname)
+        return
 
     cardname = card["name"].replace("//", "&")  # should work on macOS & windows now
+    cardname = cardname.replace(":", "")  # case for Circle of Protection: X
+
+    # process with waifu2x
     r = requests.post(
         "https://api.deepai.org/api/waifu2x",
         data={
@@ -97,7 +106,7 @@ def process_card(cardname):
         try:
             power = card["power"]
             toughness = card["toughness"]
-            topPix = 1580
+            topPix = 1575
             bottomPix = 1615
             # Creature card
         except KeyError:
@@ -106,7 +115,7 @@ def process_card(cardname):
         # planeswalkers have a shifted legal line too
         try:
             loyalty = card["loyalty"]
-            topPix = 1580
+            topPix = 1575
             bottomPix = 1605
         except KeyError:
             pass
@@ -156,4 +165,9 @@ if __name__ == "__main__":
     # Loop through each card in cards.txt and scan em all
     with open('cards.txt', 'r') as fp:
         for cardname in fp:
-            process_card(cardname)
+            cardname = cardname.rstrip()
+            try:
+                pipe_idx = cardname.index("|")
+                process_card(cardname[0:pipe_idx], cardname[pipe_idx+1:])
+            except ValueError:
+                process_card(cardname)
