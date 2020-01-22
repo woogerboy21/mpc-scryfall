@@ -29,18 +29,15 @@ def process_card(cardname, expansion=None):
 
     # Handle cards with multiple faces
     if card["layout"] == "transform":
-        # cardinfo = {x["name"]: x["image_uris"]["large"] for x in card["card_faces"]}
         cards = [x for x in card["card_faces"]]
     else:
-        # cardinfo = {card["name"]: card["image_uris"]["large"]}
-        cards = [card,]
+        cards = [card, ]
 
-    # for name, image_uri in cardinfo.items():
     for card_obj in cards:
         name = card_obj["name"].replace("//", "&")  # should work on macOS & windows now
         name = name.replace(":", "")  # case for Circle of Protection: X
 
-        # process with waifu2x
+        # Process with waifu2x
         r = requests.post(
             "https://api.deepai.org/api/waifu2x",
             data={
@@ -104,7 +101,6 @@ def process_card(cardname, expansion=None):
                   0:im_padded.shape[1], :] = bordercolour
 
         # Remove copyright line
-        # print(card["power"])
         if card["frame"] == "2015":
             # Modern frame
             leftPix = 735
