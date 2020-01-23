@@ -16,5 +16,5 @@ while more:
 
 print("Collected search results for set: " + expansion)
 
-for cardname in set(cardnames):
+for cardname in sorted(set(cardnames)):
     process_card(cardname, expansion=expansion)
